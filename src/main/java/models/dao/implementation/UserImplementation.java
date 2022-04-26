@@ -6,6 +6,7 @@ import org.sql2o.Connection;
 import org.sql2o.Sql2o;
 import org.sql2o.Sql2oException;
 
+import java.sql.SQLException;
 import java.util.List;
 
 public class UserImplementation implements UserDao {
@@ -18,9 +19,9 @@ public class UserImplementation implements UserDao {
 
     //Add User
     @Override
-    public void add(User user) {
+    public void addUser(User user) {
 
-        String sql = "INSERT INTO users(id,name,email,password) VALUES(:id, :name, :email, :password);";
+        String sql = "INSERT INTO users(name,email,password) VALUES(:name, :email, :password);";
         try(Connection conn = sql2o.open()){
             int id = (int) conn.createQuery(sql,true)
                     .bind(user)
@@ -59,12 +60,13 @@ public class UserImplementation implements UserDao {
 
     //Authenticate User
     @Override
-    public List<User> authenticate(String email, String password) {
-        String sql = "SELECT * FROM USERS WHERE password = :password";
+    public User authenticate(String email, String password) {
+        String sql = "SELECT * FROM USERS WHERE password = :password AND email = :email";
         try (Connection conn = sql2o.open()){
             return conn.createQuery(sql)
                     .addParameter("password", password)
-                    .executeAndFetch(User.class);
+                    .addParameter("email",email)
+                    .executeAndFetchFirst(User.class);
         }
     }
 
