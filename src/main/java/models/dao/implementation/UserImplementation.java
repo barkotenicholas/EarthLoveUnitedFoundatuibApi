@@ -16,6 +16,7 @@ public class UserImplementation implements UserDao {
         this.sql2o = sql2o;
     }
 
+    //Add User
     @Override
     public void add(User user) {
 
@@ -32,28 +33,67 @@ public class UserImplementation implements UserDao {
         }
     }
 
+    //Get All Users
     @Override
     public List<User> getAllUsers() {
-        return null;
+
+        String sql = "SELECT * FROM users";
+        try(Connection conn = sql2o.open()){
+            return conn.createQuery(sql)
+                       .executeAndFetch(User.class);
+        }
     }
 
+    //Delete User
     @Override
     public void deleteById(int id) {
-
+        String sql = "DELETE FROM users WHERE id = :id";
+        try (Connection conn = sql2o.open()){
+            conn.createQuery(sql)
+                    .addParameter("id",id)
+                    .executeUpdate();
+        }catch(Sql2oException ex){
+            System.out.println(ex.getMessage());
+        }
     }
 
+    //Authenticate User
     @Override
-    public void authenticate(String email, String password) {
-
+    public List<User> authenticate(String email, String password) {
+        String sql = "SELECT * FROM USERS WHERE password = :password";
+        try (Connection conn = sql2o.open()){
+            return conn.createQuery(sql)
+                    .addParameter("password", password)
+                    .executeAndFetch(User.class);
+        }
     }
 
+
+    //Find User
     @Override
     public User findUserById(int id) {
-        return null;
+        String sql = "SELECT FROM users WHERE id = :id";
+        try (Connection conn = sql2o.open()){
+            return conn.createQuery(sql)
+                       .addParameter("id",id)
+                       .executeAndFetchFirst(User.class);
+        }
     }
 
+
+    //Update User
     @Override
     public void updateUser(int id, String name, String email, String password) {
-
+        String sql = "UPDATE users SET(name, email, password) = (:name, :email, :password) WHERE id = :id";
+        try (Connection conn = sql2o.open()){
+            conn.createQuery(sql)
+                    .addParameter("name",name)
+                    .addParameter("email", email)
+                    .addParameter("password", password)
+                    .addParameter("id", id)
+                    .executeUpdate();
+        }catch(Sql2oException ex){
+            System.out.println(ex.getMessage());
+        }
     }
 }
